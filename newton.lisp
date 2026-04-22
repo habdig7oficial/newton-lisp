@@ -2,6 +2,7 @@
 (defun derivate (f)
   (cond
     ((atom f) f)
+    ;((not (listp f)) f)
     ((eq (car f) 'expt) `(* ,(third f) (expt ,(second f) (- ,(third f) 1))))
     ((eq (car f) 'sin) `(cos ,(car (cdr f))))
     ((eq (car f) 'cos) `(- (sin ,(car (cdr f)))))
@@ -15,12 +16,14 @@
   (cond
     ((null fx) nil)
     ((atom fx) fx)
-    (t (cons (derivate (derivate-all (car fx))) (derivate-all (cdr fx))))))
+    (t
+     (let ((res (derivate (derivate-all (car fx)))))
+       (cons res (derivate-all (cdr fx)))))))
   
-(defun rel-err (value aprox)
-  (/ (abs (- value aprox)) value))
+(defun interv-p (begin end x)
+  (and (> x begin) (< x end)))
 
-(defun newton* (fx fdx p epsilon i var)
+(defun newton* (fx fdx p begin end epsilon i var)
   (let* (
 	 (fa   (subst p var fx))
 	 (a (eval fa))
@@ -28,7 +31,7 @@
 	 (b (eval fb))
 	 (ab (/ a b))
 	 (pnext (- p ab))
-	 (err (eval (subst pnext var fx))))
+	 (err (abs (eval (subst pnext var fx)))))
     (format t "~%====================~%~%")
     (format t "f(~a)  = ~a = ~a~%f'(~a) = ~a = ~a~%" p fa a p fb b)
     (format t "f(~a) / f'(~a) = ~a~%" p p ab)
@@ -36,18 +39,28 @@
     (format t "~%~a = ~a - ~a~%" pnext p ab)
     (format t "Iteration Err: ~a~%" err)
     (format t "~%====================~%")
+    (cond
+      ((not (interv-p begin end pnext))
+       (format t "Out of Interval~%Max Value: ~a~%" pnext)
+       pnext)
+      ((< err epsilon) p)
+      (t (newton* fx fdx pnext begin end epsilon (+ 1) var)))
   ))
 
-(defun newton (fx p epsilon &optional (var 'x))
+(defun newton (fx interv epsilon &optional (var 'x))
   (let* ((fdx (derivate-all fx)))
     (format t "f(x)  = ~a~%f'(x) = ~a ~%~%~%" fx fdx)
-    (newton* fx fdx p epsilon 0 var)))
+    (newton* fx fdx (car interv) (car interv) (car (cdr interv)) epsilon 0 var)))
 
 
 (defparameter *episilon* 0.00001)
 
-(let ((b '(+ (log (- x 1)) (cos (- x 1)))))
-  (print (newton b 1.3 *episilon*))
+(let (
+      (a '(- (+ (exp x) (expt 2  (- x)) (* 2 (cos x))) 6))
+      (b '(+ (log (- x 1)) (cos (- x 1)))))
+  
+  ;(print (newton a '(1 2) *episilon*))
+  (print (newton b '(1.3 2) *episilon*))
   )
 
 
@@ -59,6 +72,8 @@
 
 
 
+;(defun rel-err (value aprox)
+;  (/ (abs (- value aprox)) value))
 
 
 
