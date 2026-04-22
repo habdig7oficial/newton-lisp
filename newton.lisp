@@ -1,12 +1,12 @@
 
-(defun derivate (f x)
+(defun derivate (f)
   (cond
-    ((null f) 0)
-    ;((eq (car f) 'expt) `(* ,(third f) (expt ,x (- ,(third f) 1))))
-    ((eq f 'sin) `(cos ,x))
-    ((eq f 'cos) `(- (sin ,x)))
-    ((eq f 'exp) `(exp ,x))
-    ((eq f 'log) `(/ 1 ,x))))
+    ((atom f) 0)
+    ((eq (car f) 'expt) `(* ,(third f) (expt ,(second f) (- ,(third f) 1))))
+    ((eq (car f) 'sin) `(cos ,(car (cdr f))))
+    ((eq (car f) 'cos) `(- (sin ,(car (cdr f)))))
+    ((eq (car f) 'exp) `(exp ,(car (cdr f))))
+    ((eq (car f) 'log) `(/ 1 ,(car (cdr f))))))
      
 (defun derivate-all* (fx)
   (cond
@@ -21,13 +21,15 @@
 (defun newton (fx p epsilon))
 
 
-;(print (eval (subst 3 'x (derivate '(expt nil 3)  'x))))
-(print (derivate 'sin 'x))
+;(print (eval (subst 3 'x (derivate '(expt 'x 3)))))
+(print (derivate '(expt 'x 3)))
+(print (eval (subst 2 'x (derivate '(sin 'x)))))
+(print (derivate 2))
 
 ;(let ((a '(- (+ (exp x) (expt 2 (- x)) (* 2 (cos x))) 6))))
 
-(let ((b '(+ (log (- x 1)) (cos (- x 1)))))
-  (derivate-all* b))
+;(let ((b '(+ (log (- x 1)) (cos (- x 1)))))
+;  (derivate-all* b))
 
 
 
