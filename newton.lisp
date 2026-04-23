@@ -31,7 +31,7 @@
 	 (b (eval fb))
 	 (ab (/ a b))
 	 (pnext (- p ab))
-	 (err (abs (eval (subst pnext var fx)))))
+	 (err (eval (subst pnext var fx))))
     (format t "~%====================~%~%")
     (format t "f(~a)  = ~a = ~a~%f'(~a) = ~a = ~a~%" p fa a p fb b)
     (format t "f(~a) / f'(~a) = ~a~%" p p ab)
@@ -57,10 +57,15 @@
 
 (let (
       (a '(- (+ (exp x) (expt 2  (- x)) (* 2 (cos x))) 6))
-      (b '(+ (log (- x 1)) (cos (- x 1)))))
+      (b '(+ (log (- x 1)) (cos (- x 1))))
+      (e '(- (exp x) (* 3 (expt x 2))))
+      (f '(- (sin x) (exp (- x)))))
+  
   
   ;(print (newton a '(1 2) *episilon*))
   (print (newton b '(1.3 2) *episilon*))
+  ;(print (newton e '(0 1) *episilon*))
+  ;(print (newton* f '(+ (cos x) (exp (- x))) 0 0 1 *episilon* 0 'x))
   )
 
 
